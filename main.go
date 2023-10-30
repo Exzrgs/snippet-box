@@ -6,6 +6,16 @@ import (
 )
 
 func home(w http.ResponseWriter, req *http.Request) {
+	/*
+		これで、subtree pathでも他を受け付けないようにできる.
+
+		このifでreturnしなかったら、レスポンスは改行されて"Hello from snippetBox"が追記される形になる！
+	*/
+	if req.URL.Path != "/" {
+		http.NotFound(w, req)
+		return
+	}
+
 	w.Write([]byte("Hello from snippetBox"))
 }
 
