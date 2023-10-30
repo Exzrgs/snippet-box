@@ -24,12 +24,15 @@ func snippetView(w http.ResponseWriter, req *http.Request) {
 }
 
 func snippetCreate(w http.ResponseWriter, req *http.Request) {
-	// 空白とか入るとダメ(Allow Methodみたいな)
-	w.Header().Set("Allow", "POST")
-
 	if req.Method != http.MethodPost {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		w.Write([]byte("method not allowed"))
+		// 空白とか入るとダメ(Allow Methodみたいな)
+		w.Header().Set("Allow", "POST")
+
+		/*
+			さっきの処理のヘルパー関数。ヘッダーとボディに別々に書き込まなくていい
+		*/
+		http.Error(w, "mothod not allowed", http.StatusMethodNotAllowed)
+		return
 	}
 
 	w.Write([]byte("Create a new snippet..."))
