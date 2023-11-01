@@ -17,14 +17,19 @@ func home(w http.ResponseWriter, req *http.Request) {
 	/*
 		実行している場所からの相対パスだからやばい
 	*/
-	ts, err := template.ParseFiles("./ui/html/pages/home.html")
+	files := []string{
+		"./ui/html/pages/home.html",
+		"./ui/html/base.html",
+	}
+
+	ts, err := template.ParseFiles(files...)
 	if err != nil {
 		log.Println(err.Error())
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
 
-	err = ts.Execute(w, nil)
+	err = ts.ExecuteTemplate(w, "base", nil)
 	if err != nil {
 		log.Println(err.Error())
 		http.Error(w, "internal server error", http.StatusInternalServerError)
