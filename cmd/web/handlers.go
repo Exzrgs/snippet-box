@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"html/template"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -12,7 +14,22 @@ func home(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	w.Write([]byte("snippet box home"))
+	/*
+		実行している場所からの相対パスだからやばい
+	*/
+	ts, err := template.ParseFiles("./ui/html/pages/home.html")
+	if err != nil {
+		log.Println(err.Error())
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	err = ts.Execute(w, nil)
+	if err != nil {
+		log.Println(err.Error())
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+		return
+	}
 }
 
 func snippetCreate(w http.ResponseWriter, req *http.Request) {
