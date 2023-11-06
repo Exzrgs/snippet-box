@@ -3,14 +3,14 @@ package main
 import (
 	"fmt"
 	"html/template"
-	"log"
+	"log/slog"
 	"net/http"
 	"strconv"
 )
 
-func home(w http.ResponseWriter, req *http.Request) {
+func (app *application) home(w http.ResponseWriter, req *http.Request) {
 	if req.URL.Path != "/" {
-		http.NotFound(w, req)
+		app.notFound(w)
 		return
 	}
 
@@ -25,32 +25,32 @@ func home(w http.ResponseWriter, req *http.Request) {
 
 	ts, err := template.ParseFiles(files...)
 	if err != nil {
-		log.Println(err.Error())
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		app.logger.Error(err.Error(), slog.String("method", req.Method), slog.String("url", req.URL.RequestURI()))
+		app.serverError(w, req, err)
 		return
 	}
 
 	err = ts.ExecuteTemplate(w, "base", nil)
 	if err != nil {
-		log.Println(err.Error())
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		app.logger.Error(err.Error(), slog.String("method", req.Method), slog.String("url", req.URL.RequestURI()))
+		app.serverError(w, req, err)
 		return
 	}
 }
 
-func snippetCreate(w http.ResponseWriter, req *http.Request) {
+func (app *application) snippetCreate(w http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
-		http.Error(w, "not allowed method", http.StatusMethodNotAllowed)
+		app.clientError(w, http.StatusMethodNotAllowed)
 		return
 	}
 
 	w.Write([]byte("create snippet"))
 }
 
-func snippetView(w http.ResponseWriter, req *http.Request) {
+func (app *application) snippetView(w http.ResponseWriter, req *http.Request) {
 	id, err := strconv.Atoi(req.URL.Query().Get("id"))
 	if err != nil || id < 1 {
-		http.Error(w, "invalid query parameter", http.StatusBadRequest)
+		app.notFound(w)
 		return
 	}
 
