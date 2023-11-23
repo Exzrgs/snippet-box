@@ -8,6 +8,8 @@ import (
 	"os"
 
 	"snippet-box/internal/models"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type application struct {
