@@ -20,33 +20,10 @@ func (app *application) home(w http.ResponseWriter, req *http.Request) {
 		app.serverError(w, req, err)
 		return
 	}
-
-	for _, snippet := range snippets {
-		fmt.Fprintf(w, "%+v\n", snippet)
-	}
-
-	// /*
-	// 	実行している場所からの相対パスだからやばい
-	// */
-	// files := []string{
-	// 	"./ui/html/pages/home.html",
-	// 	"./ui/html/base.html",
-	// 	"./ui/html/partials/nav.html",
-	// }
-
-	// ts, err := template.ParseFiles(files...)
-	// if err != nil {
-	// 	app.logger.Error(err.Error(), slog.String("method", req.Method), slog.String("url", req.URL.RequestURI()))
-	// 	app.serverError(w, req, err)
-	// 	return
-	// }
-
-	// err = ts.ExecuteTemplate(w, "base", nil)
-	// if err != nil {
-	// 	app.logger.Error(err.Error(), slog.String("method", req.Method), slog.String("url", req.URL.RequestURI()))
-	// 	app.serverError(w, req, err)
-	// 	return
-	// }
+	td := app.newTemplateData()
+	td.Snippets = snippets
+	page := "home.html"
+	app.render(w, req, http.StatusOK, page, td)
 }
 
 func (app *application) snippetCreate(w http.ResponseWriter, req *http.Request) {
@@ -84,6 +61,8 @@ func (app *application) snippetView(w http.ResponseWriter, req *http.Request) {
 		}
 		return
 	}
-
-	fmt.Fprintf(w, "%+v", snippet)
+	td := app.newTemplateData()
+	td.Snippet = snippet
+	page := "view.html"
+	app.render(w, req, http.StatusOK, page, td)
 }
