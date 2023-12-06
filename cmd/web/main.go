@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"fmt"
 	"html/template"
 	"log/slog"
 	"net/http"
@@ -46,7 +47,7 @@ func main() {
 		templateCache: cache,
 	}
 
-	app.logger.Info("starting server", slog.String("addr", *addr))
+	app.logger.Info(fmt.Sprintf("starting server at http://localhost%s", *addr))
 
 	err = http.ListenAndServe(*addr, app.routes())
 	app.logger.Error(err.Error())
