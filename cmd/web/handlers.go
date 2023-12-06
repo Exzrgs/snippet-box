@@ -7,14 +7,11 @@ import (
 	"strconv"
 
 	"snippet-box/internal/models"
+
+	"github.com/julienschmidt/httprouter"
 )
 
 func (app *application) home(w http.ResponseWriter, req *http.Request) {
-	if req.URL.Path != "/" {
-		app.notFound(w)
-		return
-	}
-
 	snippets, err := app.snippets.Latest()
 	if err != nil {
 		app.serverError(w, req, err)
@@ -26,12 +23,11 @@ func (app *application) home(w http.ResponseWriter, req *http.Request) {
 	app.render(w, req, http.StatusOK, page, td)
 }
 
-func (app *application) snippetCreate(w http.ResponseWriter, req *http.Request) {
-	if req.Method != http.MethodPost {
-		app.clientError(w, http.StatusMethodNotAllowed)
-		return
-	}
+func (app *application) snippetCreateView(w http.ResponseWriter, req *http.Request) {
+	w.Write([]byte("Display the form for creating a new snippet..."))
+}
 
+func (app *application) snippetCreate(w http.ResponseWriter, req *http.Request) {
 	title := "O snail"
 	content := "O snail\nClimb Mount Fuji,\nBut slowly, slowly!\n\n- Kobayashi Issa"
 	expires := 7
@@ -42,11 +38,13 @@ func (app *application) snippetCreate(w http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	http.Redirect(w, req, fmt.Sprintf("/snippet/view?id=%d", id), http.StatusSeeOther)
+	http.Redirect(w, req, fmt.Sprintf("/snippet/view/%d", id), http.StatusSeeOther)
 }
 
 func (app *application) snippetView(w http.ResponseWriter, req *http.Request) {
-	id, err := strconv.Atoi(req.URL.Query().Get("id"))
+	params := httprouter.ParamsFromContext(req.Context())
+
+	id, err := strconv.Atoi(params.ByName("id"))
 	if err != nil || id < 1 {
 		app.notFound(w)
 		return
